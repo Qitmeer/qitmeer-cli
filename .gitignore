@@ -1,2 +1,7 @@
 cli
+build
+
 .vscode
+
+
+go.sum

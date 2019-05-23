@@ -5,9 +5,7 @@ Configuration file config.toml  will maked automatic
 
 # useage
 
-```sh
-
-
+```
 qitmeer cli is a RPC tool for the qitmeer network
 
 Usage:

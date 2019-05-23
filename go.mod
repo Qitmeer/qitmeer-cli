@@ -1,4 +1,4 @@
-module qitmeer/cli
+module qitmeer/qitmeer-cli
 
 go 1.12
 

@@ -10,8 +10,8 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:               "cli",
-	Long:              `cli is a RPC tool for noxd`,
+	Use:               "qitmeer-cli",
+	Long:              `qitmeer cli is a RPC tool for the qitmeer network`,
 	PersistentPreRunE: rootCmdPreRun,
 }
 

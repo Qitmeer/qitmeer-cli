@@ -19,6 +19,7 @@ func init() {
 	rootCmd.AddCommand(GenerateCmd)
 
 	rootCmd.AddCommand(GetBlockCountCmd)
+	rootCmd.AddCommand(GetBlockTemplateCmd)
 	rootCmd.AddCommand(GetBlockHashCmd)
 	rootCmd.AddCommand(GetBlockCmd)
 
@@ -53,6 +54,26 @@ var GetBlockCountCmd = &cobra.Command{
 
 		params := []interface{}{}
 		blockCount, err := getResString("getBlockCount", params)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(blockCount)
+		}
+	},
+}
+
+//GetBlockTemplateCmd get block template to mine
+var GetBlockTemplateCmd = &cobra.Command{
+	Use:   "getblocktemplate",
+	Short: "getblocktemplate",
+	Example: `
+		getblocktemplate 
+	`,
+	Args: cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+
+		params := []interface{}{}
+		blockCount, err := getResString("getBlockTemplate", params)
 		if err != nil {
 			fmt.Println(err)
 		} else {

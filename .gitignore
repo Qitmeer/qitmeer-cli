@@ -4,4 +4,7 @@ build
 .vscode
 
 
+electron/node_modules
+electron/package-lock.json
+
 go.sum

@@ -1,0 +1,15 @@
+{
+  "name": "qitmeer-cli-web",
+  "version": "1.0.0",
+  "description": "qitmeer-cli-web",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "wayman",
+  "license": "ISC",
+  "dependencies": {
+    "vue": "^2.6.10",
+    "vue-material": "^1.0.0-beta-11"
+  }
+}

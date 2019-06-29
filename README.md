@@ -1,9 +1,9 @@
 # qitmeer-cli
 The command line utility of Qitmeer
 
-Configuration file config.toml  will maked automatic 
+Configuration file config.toml will be made automatically
 
-# useage
+# Usage 
 
 ```
 qitmeer cli is a RPC tool for the qitmeer network

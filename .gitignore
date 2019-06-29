@@ -2,6 +2,7 @@ qitmeer-cli
 build
 
 .vscode
+.idea
 
 
 go.sum

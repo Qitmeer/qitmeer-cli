@@ -1,0 +1,28 @@
+ConfigFile = "config.toml"
+
+basedir = ""
+
+node = "local"  
+
+
+# start local web manger
+[gui]
+    enable = true 
+    port = 18080 # 0 random port number
+
+
+[nodes]
+
+[nodes.local]
+    enable = true
+    RPCUser = "admin"
+    RPCPassword = "123"
+    RPCServer = "47.93.20.102:1236"
+    RPCCert = ""
+    NoTLS = true
+    TLSSkipVerify = true
+    Proxy = ""
+    ProxyUser = ""
+    ProxyPass = ""
+    TestNet = false
+    SimNet = false

@@ -1,0 +1,28 @@
+
+html,body{
+    padding: 0px;margin: 0px;
+    height: 100%;width: 100%;
+}
+
+body{
+    background-color: #dfdfdf;
+    background-image: linear-gradient(180deg,#dddbd1,#d2dbdc);
+
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+  }
+  
+  body::after {
+    background-color: #3f85ed;
+    content: "";
+    height: 127px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: -1;
+  }

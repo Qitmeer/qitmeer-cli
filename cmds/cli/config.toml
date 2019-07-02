@@ -1,0 +1,14 @@
+ConfigFile = "config.toml"
+SimNet = false
+TestNet = false
+
+[RPC]
+  RPCUser = "admin"
+  RPCPassword = "123"
+  RPCServer = "127.0.0.1:1236"
+  RPCCert = ""
+  NoTLS = true
+  TLSSkipVerify = true
+  Proxy = ""
+  ProxyUser = ""
+  ProxyPass = ""

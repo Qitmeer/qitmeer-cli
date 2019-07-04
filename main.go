@@ -249,21 +249,50 @@ var GetRawTransactionCmd = &cobra.Command{
 
 //CreateRawTransactionCmd CreateRawTransactionCmd
 var CreateRawTransactionCmd = &cobra.Command{
-	Use:     "createrawtransaction {tx}",
+	Use:     "createrawtransaction {inTxid:vout}... {toAddr:amount}...",
 	Aliases: []string{"createrawtx", "createRawTransaction"},
 	Short:   "createRawTransaction",
 	Example: `
-		createRawTransaction xx
+		createRawTransaction b203ff6ba4f39ecf846a103c17f15e35afcbd229f72ad1a9f0a90f07a7535dff:2 RmFFQV5FsuKFU5b4sBjGvpDd6P183iMZRcT:20.3
 	`,
-	Args: cobra.MinimumNArgs(1),
+	Args: cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var err error
 
-		var tx string
+		type fromTx struct {
+			Txid string `json:"txid"`
+			Vout int64  `json:"vout"`
+		}
+
+		fromTxs := []fromTx{}
+		toAddr := make(map[string]float64)
+
+		for _, k := range args {
+			kParts := strings.Split(k, ":")
+			if len(kParts[0]) > 40 {
+				vout, _ := strconv.ParseInt(kParts[1], 10, 64)
+				fromTxs = append(fromTxs, fromTx{Txid: kParts[0], Vout: vout})
+			} else {
+				amount, _ := strconv.ParseFloat(kParts[1], 64)
+				toAddr[kParts[0]] = amount
+			}
+		}
+
+		/*
+					 [
+			            {
+			                "txid": "b203ff6ba4f39ecf846a103c17f15e35afcbd229f72ad1a9f0a90f07a7535dff",
+			                "vout":2
+			            }
+			        ],
+			        {
+			            "RmFFQV5FsuKFU5b4sBjGvpDd6P183iMZRcT": 449.8
+					}
+		*/
 
 		var rawTx string
-		rawTx, err = getResString("createRawTransaction", []interface{}{tx})
+		rawTx, err = getResString("createRawTransaction", []interface{}{fromTxs, toAddr})
 		if err != nil {
 			fmt.Println(err)
 		} else {

@@ -7,10 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
+	"time"
 
-	"github.com/btcsuite/go-socks/socks"
+	"github.com/samuel/go-socks/socks"
 )
 
 // newHTTPClient returns a new HTTP client that is configured according to the
@@ -54,6 +56,8 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 		}
 	}
 
+	timeout, _ := time.ParseDuration(cfg.Timeout)
+
 	// Create and return the new HTTP client potentially configured with a
 	// proxy and TLS.
 	client := http.Client{
@@ -61,6 +65,7 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 			Dial:            dial,
 			TLSClientConfig: tlsConfig,
 		},
+		Timeout: timeout,
 	}
 	return &client, nil
 }
@@ -198,6 +203,11 @@ func makeRequestData(rpcVersion string, id interface{}, method string, params []
 	if err != nil {
 		return nil, fmt.Errorf("makeRequestData: Marshal err: %s", err)
 	}
+
+	if cfg.Debug {
+		log.Println("send:", string(reqData))
+	}
+
 	return reqData, nil
 }
 

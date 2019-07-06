@@ -229,6 +229,8 @@ var GetRawTransactionCmd = &cobra.Command{
 		var txHash string
 		var verbose bool = true
 
+		txHash = args[0]
+
 		if len(args) > 1 {
 			verbose, err = strconv.ParseBool(args[1])
 			if err != nil {
@@ -443,7 +445,7 @@ var GenerateCmd = &cobra.Command{
 		}
 
 		var rs string
-		rs, err = getResString("generate", params)
+		rs, err = getResString("miner_generate", params)
 		if err != nil {
 			fmt.Println(err)
 		} else {

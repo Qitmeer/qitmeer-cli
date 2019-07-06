@@ -14,12 +14,12 @@ var cfg = &Config{}
 
 /*  */
 func init() {
-	rootCmd.PersistentFlags().StringVar(&cfg.ConfigFile, "conf", "config.toml", "RPC username")
+	rootCmd.PersistentFlags().StringVarP(&cfg.ConfigFile, "config", "c", "config.toml", "config file path")
 
 	rootCmd.PersistentFlags().StringVarP(&cfg.RPCUser, "user", "u", "", "RPC username")
 	rootCmd.PersistentFlags().StringVarP(&cfg.RPCPassword, "password", "P", "", "RPC password")
 	rootCmd.PersistentFlags().StringVarP(&cfg.RPCServer, "server", "s", "127.0.0.1:18131", "RPC server to connect to")
-	rootCmd.PersistentFlags().StringVar(&cfg.RPCCert, "c", "", "RPC server certificate file path")
+	rootCmd.PersistentFlags().StringVar(&cfg.RPCCert, "cert", "", "RPC server certificate file path")
 
 	rootCmd.PersistentFlags().BoolVar(&cfg.NoTLS, "notls", true, "Do not verify tls certificates (not recommended!)")
 	rootCmd.PersistentFlags().BoolVar(&cfg.TLSSkipVerify, "skipverify", true, "Do not verify tls certificates (not recommended!)")
@@ -30,6 +30,9 @@ func init() {
 
 	rootCmd.PersistentFlags().BoolVar(&cfg.TestNet, "testnet", false, "Connect to testnet")
 	rootCmd.PersistentFlags().BoolVar(&cfg.SimNet, "simnet", false, "Connect to the simulation test network")
+
+	rootCmd.PersistentFlags().BoolVar(&cfg.Debug, "debug", false, "debug print log")
+	rootCmd.PersistentFlags().StringVar(&cfg.Timeout, "timeout", "30s", "rpc timeout,s:second h:hour m:minute")
 }
 
 type Config struct {
@@ -48,6 +51,9 @@ type Config struct {
 
 	TestNet bool
 	SimNet  bool
+
+	Debug   bool
+	Timeout string
 }
 
 //

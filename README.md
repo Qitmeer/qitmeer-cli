@@ -1,7 +1,24 @@
 # qitmeer-cli
+
 The command line utility of Qitmeer
 
 Configuration file config.toml will be made automatically
+
+# download or build
+
+you can download the compiled binary version.
+
+[download](https://github.com/HalalChain/qitmeer-cli/releases)
+
+if you have go environment,you can also build it by yourself.
+```
+git clone https://github.com/HalalChain/qitmeer-cli.git
+
+cd itmeer-cli
+
+go build
+ 
+```
 
 # Usage 
 

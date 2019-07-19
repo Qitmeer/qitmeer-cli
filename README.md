@@ -14,7 +14,7 @@ if you have go environment,you can also build it by yourself.
 ```
 git clone https://github.com/HalalChain/qitmeer-cli.git
 
-cd itmeer-cli
+cd qitmeer-cli
 
 go build
  

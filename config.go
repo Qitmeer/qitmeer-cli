@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
 
 	"github.com/BurntSushi/toml"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -58,38 +58,74 @@ type Config struct {
 
 //
 func rootCmdPreRun(cmd *cobra.Command, args []string) error {
-	cfg2 := &Config{}
-	_, decodeErr := toml.DecodeFile(cfg.ConfigFile, cfg2)
 
-	if decodeErr != nil {
-		fmt.Println("config file err:", decodeErr)
-	} else {
-		if !cmd.Flag("user").Changed {
-			cfg.RPCUser = cfg2.RPCUser
-		}
-		if !cmd.Flag("password").Changed {
-			cfg.RPCPassword = cfg2.RPCPassword
-		}
-		if !cmd.Flag("server").Changed {
-			cfg.RPCServer = cfg2.RPCServer
-		}
+	cfgFromFile := &Config{}
 
+	if cmd.Flag("config").Changed {
+		_, decodeErr := toml.DecodeFile(cfg.ConfigFile, cfgFromFile)
+		if decodeErr != nil {
+			return fmt.Errorf("config file err: %s", decodeErr)
+		}
 	}
 
-	//params.MainNetParams.DefaultPort
-	//	preCfg := cfg
+	if cmd.Flag("user").Changed {
+		cfgFromFile.RPCUser = cfg.RPCUser
+	}
+	if cmd.Flag("password").Changed {
+		cfgFromFile.RPCPassword = cfg.RPCPassword
+	}
+	if cmd.Flag("server").Changed {
+		cfgFromFile.RPCServer = cfg.RPCServer
+	}
+	if cmd.Flag("cert").Changed {
+		cfgFromFile.RPCCert = cfg.RPCCert
+	}
+	if cmd.Flag("notls").Changed {
+		cfgFromFile.NoTLS = cfg.NoTLS
+	}
+	if cmd.Flag("skipverify").Changed {
+		cfgFromFile.TLSSkipVerify = cfg.TLSSkipVerify
+	}
+
+	if cmd.Flag("proxy").Changed {
+		cfgFromFile.Proxy = cfg.Proxy
+	}
+	if cmd.Flag("proxyuser").Changed {
+		cfgFromFile.ProxyUser = cfg.ProxyUser
+	}
+	if cmd.Flag("proxypass").Changed {
+		cfgFromFile.ProxyPass = cfg.ProxyPass
+	}
+
+	if cmd.Flag("debug").Changed {
+		cfgFromFile.Debug = cfg.Debug
+	}
+	if cmd.Flag("timeout").Changed {
+		cfgFromFile.Timeout = cfg.Timeout
+	}
 
 	// Multiple networks can't be selected simultaneously.
 	numNets := 0
 	if cfg.TestNet {
+		cfgFromFile.TestNet = true
 		numNets++
 	}
 	if cfg.SimNet {
+		cfgFromFile.SimNet = true
 		numNets++
 	}
 	if numNets > 1 {
-		return fmt.Errorf("loadConfig: %s", "one of the testnet and simnet")
+		return fmt.Errorf("network: %s", "one of the testnet and simnet")
 	}
+
+	cfg = cfgFromFile
+
+	if cfg.Debug {
+		log.SetLevel(log.TraceLevel)
+	}
+	log.SetFormatter(&log.TextFormatter{
+		DisableTimestamp: true,
+	})
 
 	//save
 	buf := new(bytes.Buffer)

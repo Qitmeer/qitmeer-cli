@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"time"
 
 	"github.com/samuel/go-socks/socks"
+	log "github.com/sirupsen/logrus"
 )
 
 // newHTTPClient returns a new HTTP client that is configured according to the
@@ -81,9 +81,9 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 		protocol = "https"
 	}
 	url := protocol + "://" + cfg.RPCServer
-	// if cfg.PrintJSON {
-	// 	fmt.Println(string(marshalledJSON))
-	// }
+
+	log.Trace("Post URL: ", url)
+
 	bodyReader := bytes.NewReader(marshalledJSON)
 	httpRequest, err := http.NewRequest("POST", url, bodyReader)
 	if err != nil {
@@ -103,14 +103,14 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	}
 	httpResponse, err := httpClient.Do(httpRequest)
 	if err != nil {
-		return nil, fmt.Errorf("sendPostRequest: httpClient.Do err: %s", err)
+		return nil, fmt.Errorf("httpClient.Do err: %s", err)
 	}
 
 	// Read the raw bytes and close the response.
 	respBytes, err := ioutil.ReadAll(httpResponse.Body)
 	httpResponse.Body.Close()
 	if err != nil {
-		return nil, fmt.Errorf("sendPostRequest: reading json reply: err: %v", err)
+		return nil, fmt.Errorf("reading json reply err: %v", err)
 	}
 
 	// Handle unsuccessful HTTP responses
@@ -120,10 +120,10 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 		// than showing nothing in case the target server has a poor
 		// implementation.
 		if len(respBytes) == 0 {
-			return nil, fmt.Errorf("%d %s", httpResponse.StatusCode,
+			return nil, fmt.Errorf("http 0 byte: %d %s", httpResponse.StatusCode,
 				http.StatusText(httpResponse.StatusCode))
 		}
-		return nil, fmt.Errorf("sendPostRequest: StatusCode: %s", respBytes)
+		return nil, fmt.Errorf("http: %s", respBytes)
 	}
 
 	// If requested, print raw json response.
@@ -134,11 +134,11 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	// Unmarshal the response.
 	var resp Response
 	if err := json.Unmarshal(respBytes, &resp); err != nil {
-		return nil, fmt.Errorf("sendPostRequest: json.Unmarshal resData: %s", respBytes)
+		return nil, fmt.Errorf("json.Unmarshal resData: %s", respBytes)
 	}
 
 	if resp.Error != nil {
-		return nil, fmt.Errorf("sendPostRequest: resp.Error: %s,sendData: %s", respBytes, string(marshalledJSON))
+		return nil, fmt.Errorf("resp.Error: %s,sendData: %s", respBytes, string(marshalledJSON))
 	}
 	return resp.Result, nil
 }
@@ -179,14 +179,14 @@ func makeRequestData(rpcVersion string, id interface{}, method string, params []
 		rpcVersion = "1.0"
 	}
 	if !IsValidIDType(id) {
-		return nil, fmt.Errorf("makeRequestData: %T is invalid", id)
+		return nil, fmt.Errorf("requestData err: %T is invalid", id)
 	}
 
 	rawParams := make([]json.RawMessage, 0, len(params))
 	for _, param := range params {
 		marshalledParam, err := json.Marshal(param)
 		if err != nil {
-			return nil, fmt.Errorf("makeRequestData: Marshal param err: %s ", err)
+			return nil, fmt.Errorf("requestData err: Marshal param err: %s ", err)
 		}
 		rawMessage := json.RawMessage(marshalledParam)
 		rawParams = append(rawParams, rawMessage)
@@ -201,12 +201,10 @@ func makeRequestData(rpcVersion string, id interface{}, method string, params []
 
 	reqData, err := json.Marshal(&req)
 	if err != nil {
-		return nil, fmt.Errorf("makeRequestData: Marshal err: %s", err)
+		return nil, fmt.Errorf("requestData err: Marshal err: %s", err)
 	}
 
-	if cfg.Debug {
-		log.Println("send:", string(reqData))
-	}
+	log.Trace("Post data: ", string(reqData))
 
 	return reqData, nil
 }
@@ -225,18 +223,16 @@ func IsValidIDType(id interface{}) bool {
 	}
 }
 
-var rpcVersion string = "1.0"
+var rpcVersion = "1.0"
 
 func getResString(method string, args []interface{}) (rs string, err error) {
 	reqData, err := makeRequestData(rpcVersion, 1, method, args)
 	if err != nil {
-		err = fmt.Errorf("getResString [%s]: %s", method, err)
 		return
 	}
 
 	resResult, err := sendPostRequest(reqData, cfg)
 	if err != nil {
-		err = fmt.Errorf("getResString [%s]: %s", method, err)
 		return
 	}
 

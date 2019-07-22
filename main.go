@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -36,7 +37,7 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		log.Error("cmd execute err: ", err)
 		os.Exit(1)
 	}
 	return
@@ -55,7 +56,7 @@ var GetBlockCountCmd = &cobra.Command{
 		params := []interface{}{}
 		blockCount, err := getResString("getBlockCount", params)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(blockCount)
 		}
@@ -75,7 +76,7 @@ var GetBlockTemplateCmd = &cobra.Command{
 		params := []interface{}{}
 		blockCount, err := getResString("getBlockTemplate", params)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(blockCount)
 		}
@@ -102,7 +103,7 @@ var GetBlockHashCmd = &cobra.Command{
 
 		blockHash, err := getResString("getBlockhash", params)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			// blockHash= " \"xxxx\" "
 			blockHash = strings.Trim(blockHash, "\"")
@@ -138,7 +139,7 @@ var GetBlockCmd = &cobra.Command{
 
 			blockHash, err = getResString("getBlockhash", []interface{}{blockNUmber})
 			if err != nil {
-				fmt.Println(err)
+				log.Error(cmd.Use+" err: ", err)
 				return
 			}
 			// blockHash= " \"xxxx\" "
@@ -163,7 +164,7 @@ var GetBlockCmd = &cobra.Command{
 		var blockInfo string
 		blockInfo, err = getResString("getBlock", getBlockParam)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(blockInfo)
 		}
@@ -205,7 +206,7 @@ var GetMempoolCmd = &cobra.Command{
 		var blockInfo string
 		blockInfo, err = getResString("getMempool", getBlockParam)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(blockInfo)
 		}
@@ -242,7 +243,7 @@ var GetRawTransactionCmd = &cobra.Command{
 		var txInfo string
 		txInfo, err = getResString("getRawTransaction", []interface{}{txHash, verbose})
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(txInfo)
 		}
@@ -296,7 +297,7 @@ var CreateRawTransactionCmd = &cobra.Command{
 		var rawTx string
 		rawTx, err = getResString("createRawTransaction", []interface{}{fromTxs, toAddr})
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(rawTx)
 		}
@@ -318,7 +319,7 @@ var DecodeRawTransactionCmd = &cobra.Command{
 		var tx string
 		tx, err = getResString("decodeRawTransaction", []interface{}{args[0]})
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(tx)
 		}
@@ -350,7 +351,7 @@ var SendRawTransactionCmd = &cobra.Command{
 		var rs string
 		rs, err = getResString("sendRawTransaction", []interface{}{args[0], allowHighFee})
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(rs)
 		}
@@ -370,7 +371,7 @@ var TxSignCmd = &cobra.Command{
 		var rs string
 		rs, err = getResString("txSign", []interface{}{args[0], args[1]})
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(rs)
 		}
@@ -414,7 +415,7 @@ var GetUtxoCmd = &cobra.Command{
 
 		tx, err = getResString("getUtxo", params)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(tx)
 		}
@@ -447,7 +448,7 @@ var GenerateCmd = &cobra.Command{
 		var rs string
 		rs, err = getResString("miner_generate", params)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(cmd.Use+" err: ", err)
 		} else {
 			fmt.Println(rs)
 		}

@@ -23,7 +23,7 @@ go build
 # Usage 
 
 ```
-qitmeer cli is a RPC tool for the qitmeer network
+qitmeer cli is a RPC tool for the qitmeer and qitmeer-wallet
 
 Usage:
   qitmeer-cli [command]
@@ -32,21 +32,32 @@ Available Commands:
   createrawtransaction createRawTransaction
   decoderawtransaction decodeRawTransaction
   generate             generate {n}, cpu mine n blocks
+  getBestBlockHash     getBestBlockHash
+  getBlockByOrder      getblockbyorder uint64 bool
+  getBlockWeight       getBlockWeight
+  getBlockhashByRange  getBlockhashByRange start end
+  getMainChainHeight   getMainChainHeight
+  getNodeInfo          getNodeInfo
+  getPeerInfo          getPeerInfo
   getUtxo              getUtxo tx_hash vout include_mempool,
   getblock             get block by number or hash
   getblockcount        get block count
   getblockhash         get block hash by number
+  getblockheader       get block by number or hash
   getblocktemplate     getblocktemplate
   getmempool           get mempool
   getrawtransaction    getrawtransaction
   help                 Help about any command
+  isOnMainChain        Query whether a given block is on the main chain
   sendrawtransaction   sendRawTransaction
+  submitBlock          submitBlock blockHex
   txSign               txSign private_key raw_tx
 
 Flags:
       --cert string        RPC server certificate file path
   -c, --config string      config file path (default "config.toml")
       --debug              debug print log
+      --format             print json format
   -h, --help               help for qitmeer-cli
       --notls              Do not verify tls certificates (not recommended!) (default true)
   -P, --password string    RPC password
@@ -54,9 +65,7 @@ Flags:
       --proxypass string   Password for proxy server
       --proxyuser string   Username for proxy server
   -s, --server string      RPC server to connect to (default "127.0.0.1:18131")
-      --simnet             Connect to the simulation test network
       --skipverify         Do not verify tls certificates (not recommended!) (default true)
-      --testnet            Connect to testnet
       --timeout string     rpc timeout,s:second h:hour m:minute (default "30s")
   -u, --user string        RPC username
 

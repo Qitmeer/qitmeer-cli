@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"bytes"
@@ -74,7 +74,7 @@ func newHTTPClient(cfg *Config) (*http.Client, error) {
 // to the server described in the passed config struct.  It also attempts to
 // unmarshal the response as a JSON-RPC response and returns either the result
 // field or the error field depending on whether or not there is an error.
-func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
+func SendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 	// Generate a request to the configured RPC server.
 	protocol := "http"
 	if !cfg.NoTLS {
@@ -126,11 +126,6 @@ func sendPostRequest(marshalledJSON []byte, cfg *Config) ([]byte, error) {
 		return nil, fmt.Errorf("http: %s", respBytes)
 	}
 
-	// If requested, print raw json response.
-	// if cfg.PrintJSON {
-	// 	fmt.Println(string(respBytes))
-	// }
-
 	// Unmarshal the response.
 	var resp Response
 	if err := json.Unmarshal(respBytes, &resp); err != nil {
@@ -173,7 +168,7 @@ type Request struct {
 }
 
 //makeRequestData
-func makeRequestData(rpcVersion string, id interface{}, method string, params []interface{}) ([]byte, error) {
+func MakeRequestData(rpcVersion string, id interface{}, method string, params []interface{}) ([]byte, error) {
 	// default to JSON-RPC 1.0 if RPC type is not specified
 	if rpcVersion != "2.0" && rpcVersion != "1.0" {
 		rpcVersion = "1.0"
@@ -221,21 +216,4 @@ func IsValidIDType(id interface{}) bool {
 	default:
 		return false
 	}
-}
-
-var rpcVersion = "1.0"
-
-func getResString(method string, args []interface{}) (rs string, err error) {
-	reqData, err := makeRequestData(rpcVersion, 1, method, args)
-	if err != nil {
-		return
-	}
-
-	resResult, err := sendPostRequest(reqData, cfg)
-	if err != nil {
-		return
-	}
-
-	rs = string(resResult)
-	return
 }

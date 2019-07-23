@@ -1,4 +1,4 @@
-module qitmeer/qitmeer-cli
+module github.com/HalalChain/qitmeer-cli
 
 go 1.12
 

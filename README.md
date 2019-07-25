@@ -23,39 +23,42 @@ go build
 # Usage 
 
 ```
-qitmeer cli is a RPC tool for the qitmeer and qitmeer-wallet
-
 Usage:
-  qitmeer-cli [command]
+qitmeer-cli [command]
 
-Available Commands:
-  createrawtransaction createRawTransaction
-  decoderawtransaction decodeRawTransaction
-  generate             generate {n}, cpu mine n blocks
-  getBestBlockHash     getBestBlockHash
-  getBlockByOrder      getblockbyorder uint64 bool
-  getBlockWeight       getBlockWeight
-  getBlockhashByRange  getBlockhashByRange start end
-  getMainChainHeight   getMainChainHeight
-  getNodeInfo          getNodeInfo
-  getPeerInfo          getPeerInfo
-  getUtxo              getUtxo tx_hash vout include_mempool,
-  getblock             get block by number or hash
-  getblockcount        get block count
-  getblockhash         get block hash by number
-  getblockheader       get block by number or hash
-  getblocktemplate     getblocktemplate
-  getmempool           get mempool
-  getrawtransaction    getrawtransaction
-  help                 Help about any command
-  isOnMainChain        Query whether a given block is on the main chain
-  sendrawtransaction   sendRawTransaction
-  submitBlock          submitBlock blockHex
-  txSign               txSign private_key raw_tx
+block Commands:
+	getBlockCount        getBlockCount; count all synchronous blocks
+	getBlockHash         getBlockHash {number}; get block hash by number
+	getBlock             getBlock {number|hash} [verbose]; verbose: defalut true,show block detail,get block by number or hash
+	getBlockHashByRange  getBlockHashByRange {start} {end};Return the hash range of block from 'start' to 'end'(exclude self)
+	getBlockByOrder      getBlockByOrder {order} {fullTx}
+	getBestBlockHash     getBestBlockHash
+	getBlockHeader       getBlockHeader {number|hash} [verbose];verbose:bool,show detail,defalut true; get block by number or hash
+	isOnMainChain        isOnMainChain {hash}; query whether a given block is on the main chain
+	getMainChainHeight   getMainChainHeight
+	getBlockWeight       getBlockWeight
+
+blockChain Commands:
+	createRawTransaction createRawTx {inTxid:vout}... {toAddr:amount}... {lockTime},crate raw transaction
+	getRawTransaction    getRawTransaction {tx_hash} [verbose]; verbose: bool,show detail,defalut true
+	decodeRawTransaction decodeRawTransaction {raw_tx}
+	sendRawTransaction   sendRawTransaction {sign_raw_tx} {allow_high_fee}; allow_high_fee: default false; send sing_raw_tx to network
+	txSign               txSign {private_key} {raw_tx}; sign rawTx
+	getUtxo              getUtxo {tx_hash} {vout} [include_mempool]; vout:index of the output; include_mempool: default=true,include the mempool , get information about an unspent transaction output
+	getNodeInfo          getNodeInfo
+	getPeerInfo          getPeerInfo
+
+mempool Commands:
+	getMempool           getMempool [type] [verbose]; type: defalut regular; verbose: bool ; get mempool info
+
+miner Commands:
+	generate             generate {number}, cpu mine {number} blocks
+	getBlockTemplate     getBlockTemplate; get new block work to mine
+	submitBlock          submitBlock {blockHex}; broadcast mine block to network
 
 Flags:
       --cert string        RPC server certificate file path
-  -c, --config string      config file path (default "config.toml")
+  -c, --config string      config file path (default "cli.toml")
       --debug              debug print log
       --format             print json format
   -h, --help               help for qitmeer-cli

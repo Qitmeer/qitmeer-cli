@@ -1,5 +1,5 @@
 Debug = false
-Format = false
+Format = true
 RPCServer = "47.93.20.102:1236"
 RPCUser = "admin"
 RPCPassword = "123"

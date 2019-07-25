@@ -6,3 +6,6 @@ build
 
 
 go.sum
+
+doc/build
+doc/doc

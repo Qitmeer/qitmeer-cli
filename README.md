@@ -1,6 +1,6 @@
 # qitmeer-cli
 
-The command line utility of Qitmeer
+The command line utility of Qitmeer and Qitmeer-wallet
 
 Configuration file config.toml will be made automatically
 

@@ -30,6 +30,7 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{
 		DisableTimestamp: true,
 	})
+	cobra.EnableCommandSorting = false
 	bindFlags()
 }
 
@@ -37,9 +38,11 @@ func main() {
 	commands.RootCmd.PersistentPreRunE = LoadConfig
 
 	if err := commands.RootCmd.Execute(); err != nil {
-		log.Error("cmd execute err: ", err)
 		os.Exit(1)
 	}
+
+	// /fmt.Println(commands.MakeTpl())
+
 	return
 }
 
@@ -66,6 +69,12 @@ func bindFlags() {
 
 	gFlags.BoolVar(&preCfg.Debug, "debug", false, "debug print log")
 	gFlags.BoolVar(&preCfg.Format, "format", false, "print json format")
+
+	// fmt.Println(commands.RootCmd.arg)
+	// // if !cmd.HasParent() {
+	// // 	fmt.Println(cmd.ValidArgs[0])
+	// // 	cmd.ValidArgs[0] = strings.ToLower(cmd.ValidArgs[0])
+	// // }
 }
 
 // LoadConfig merge config file and flags

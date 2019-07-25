@@ -10,44 +10,51 @@ import (
 )
 
 func init() {
-	RootCmd.AddCommand(GetBlockCountCmd)
-	RootCmd.AddCommand(GetBlockHashCmd)
-	RootCmd.AddCommand(GetBlockCmd)
-	RootCmd.AddCommand(GetBlockhashByRangeCmd)
-	RootCmd.AddCommand(GetBlockByOrderCmd)
-	RootCmd.AddCommand(GetBestBlockHashCmd)
-	RootCmd.AddCommand(GetBlockHeaderCmd)
-	RootCmd.AddCommand(IsOnMainChainCmd)
-	RootCmd.AddCommand(GetMainChainHeightCmd)
-	RootCmd.AddCommand(GetBlockWeightCmd)
+
+	blockCmds := []*cobra.Command{
+		GetBlockCountCmd,
+		GetBlockHashCmd,
+		GetBlockCmd,
+		GetBlockhashByRangeCmd,
+		GetBlockByOrderCmd,
+		GetBestBlockHashCmd,
+		GetBlockHeaderCmd,
+		IsOnMainChainCmd,
+		GetMainChainHeightCmd,
+		GetBlockWeightCmd,
+	}
+
+	RootCmd.AddCommand(blockCmds...)
+	RootSubCmdGroups["block"] = blockCmds
 }
 
 //GetBlockCountCmd get block count
 var GetBlockCountCmd = &cobra.Command{
-	Use:   "getblockcount",
-	Short: "get block count",
+	Use:     "getBlockCount",
+	Short:   "getBlockCount; count all synchronous blocks",
+	Aliases: []string{"getblockcount", "GetBlockCount"},
 	Example: `
-		getblockcount 
+getBlockCount 
 	`,
 	Args: cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-
 		params := []interface{}{}
 		blockCount, err := getResString("getBlockCount", params)
 		if err != nil {
 			log.Error(cmd.Use+" err: ", err)
 		} else {
-			fmt.Println(blockCount)
+			output(blockCount)
 		}
 	},
 }
 
 //GetBlockHashCmd get block hash by number
 var GetBlockHashCmd = &cobra.Command{
-	Use:   "getblockhash {number}",
-	Short: "get block hash by number",
+	Use:     "getBlockHash {number}",
+	Short:   "getBlockHash {number}; get block hash by number",
+	Aliases: []string{"getblockhash", "GetBlockHash", "getBlockhash"},
 	Example: `
-		getblockhash 100 
+getBlockHash 100 
 	`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -73,13 +80,17 @@ var GetBlockHashCmd = &cobra.Command{
 
 //GetBlockCmd get block by number or hash
 var GetBlockCmd = &cobra.Command{
-	Use:   "getblock {number|hash} {bool,show detail,defalut true}",
-	Short: "get block by number or hash",
+	Use:     "getBlock {number|hash} [verbose]",
+	Aliases: []string{"getblock", "GetBlock"},
+	Short:   "getBlock {number|hash} [verbose]; verbose: defalut true,show block detail,get block by number or hash",
 	Example: `
-		getblock 100 false
-		getblock 100
-		getblock 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca
-		getblock 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca true
+getBlock 100 false
+
+getBlock 100
+
+getBlock 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca
+
+getBlock 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca true
 	`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -132,14 +143,15 @@ var GetBlockCmd = &cobra.Command{
 
 //GetBlockhashByRangeCmd get block hash by number
 var GetBlockhashByRangeCmd = &cobra.Command{
-	Use:     "getBlockhashByRange {start} {end}",
-	Aliases: []string{"getblockhashbyrange"},
-	Short:   "getBlockhashByRange start end",
+	Use:     "getBlockHashByRange {start} {end}",
+	Aliases: []string{"getblockhashbyrange", "GetBlockHashByRange", "getBlockhashByRange", "gethash"},
+	Short:   "getBlockHashByRange {start} {end};Return the hash range of block from 'start' to 'end'(exclude self)",
+	Long: `
+	getBlockHashByRange {start} {end};Return the hash range of block from 'start' to 'end'(exclude self)
+	if 'end' is equal to zero, 'start' is the number that from the last block to the Gen
+	if 'start' is greater than or equal to 'end', it will just return the hash of 'start'`,
 	Example: `
-		getBlockhashByRange 10 90
-		Return the hash range of block from 'start' to 'end'(exclude self)
-		if 'end' is equal to zero, 'start' is the number that from the last block to the Gen
-		if 'start' is greater than or equal to 'end', it will just return the hash of 'start'
+getBlockHashByRange 5 22
 	`,
 	Args: cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -172,10 +184,10 @@ var GetBlockhashByRangeCmd = &cobra.Command{
 //GetBlockByOrderCmd get block hash by number
 var GetBlockByOrderCmd = &cobra.Command{
 	Use:     "getBlockByOrder {order} {fullTx}",
-	Aliases: []string{"getblockbyorder"},
-	Short:   "getblockbyorder uint64 bool",
+	Aliases: []string{"getblockbyorder", "GetBlockByOrder"},
+	Short:   "getBlockByOrder {order} {fullTx}",
 	Example: `
-		getblockbyorder 10 true
+getBlockByOrder 10 true
 	`,
 	Args: cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -207,9 +219,9 @@ var GetBlockByOrderCmd = &cobra.Command{
 var GetBestBlockHashCmd = &cobra.Command{
 	Use:     "getBestBlockHash",
 	Short:   "getBestBlockHash",
-	Aliases: []string{"getbestblockhash"},
+	Aliases: []string{"getbestblockhash", "GetBestBlockHash"},
 	Example: `
-		getBestBlockHash 
+getBestBlockHash 
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		blockHash, err := getResString("getBestBlockHash", nil)
@@ -224,14 +236,17 @@ var GetBestBlockHashCmd = &cobra.Command{
 
 //GetBlockHeaderCmd  get block by number or hash
 var GetBlockHeaderCmd = &cobra.Command{
-	Use:     "getblockheader {number|hash} {bool,show detail,defalut true}",
-	Aliases: []string{"GetBlockHeader", "getBlockHeader"},
-	Short:   "get block by number or hash",
+	Use:     "getBlockHeader {number|hash} [verbose]",
+	Aliases: []string{"getblockheader", "GetBlockHeader"},
+	Short:   "getBlockHeader {number|hash} [verbose];verbose:bool,show detail,defalut true; get block by number or hash",
 	Example: `
-		getBlockHeader 100 false
-		getBlockHeader 100
-		getBlockHeader 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca
-		getBlockHeader 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca true
+getBlockHeader 100 false
+
+getBlockHeader 100
+
+getBlockHeader 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca
+
+getBlockHeader 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca true
 	`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -244,7 +259,7 @@ var GetBlockHeaderCmd = &cobra.Command{
 			var blockNUmber int64
 			blockNUmber, err = strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
-				fmt.Println("block number is not int or hash wrong")
+				log.Error("block number is not int or hash wrong: ", err)
 				return
 			}
 
@@ -263,7 +278,7 @@ var GetBlockHeaderCmd = &cobra.Command{
 		if len(args) > 1 {
 			isDetail, err = strconv.ParseBool(args[1])
 			if err != nil {
-				fmt.Println("isDetail bool true or false", err)
+				log.Error("verbose bool true or false", err)
 				return
 			}
 		}
@@ -285,10 +300,10 @@ var GetBlockHeaderCmd = &cobra.Command{
 //IsOnMainChainCmd .
 var IsOnMainChainCmd = &cobra.Command{
 	Use:     "isOnMainChain {hash}",
-	Short:   "query whether a given block is on the main chain",
+	Short:   "isOnMainChain {hash}; query whether a given block is on the main chain",
 	Aliases: []string{"isOnMainChain", "isonmainchain"},
 	Example: `
-		isOnMainChain 0000006c77a308846e0e0759bef5ebe0dbf4d49f345b08bdda24642efcc0cb91
+isOnMainChain 0000006c77a308846e0e0759bef5ebe0dbf4d49f345b08bdda24642efcc0cb91
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -309,7 +324,7 @@ var GetMainChainHeightCmd = &cobra.Command{
 	Short:   "getMainChainHeight",
 	Aliases: []string{"getMainChainHeight", "getmainchainheight"},
 	Example: `
-		GetMainChainHeight
+GetMainChainHeight
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -328,7 +343,7 @@ var GetBlockWeightCmd = &cobra.Command{
 	Short:   "getBlockWeight",
 	Aliases: []string{"getBlockWeight", "getblockweight"},
 	Example: `
-		getBlockWeight 0000006c77a308846e0e0759bef5ebe0dbf4d49f345b08bdda24642efcc0cb91
+getBlockWeight 0000006c77a308846e0e0759bef5ebe0dbf4d49f345b08bdda24642efcc0cb91
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 

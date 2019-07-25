@@ -1,28 +1,49 @@
-# qitmeer-cli
+package main
 
-The command line utility of Qitmeer and Qitmeer-wallet
+import (
+	"log"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
+
+	"github.com/spf13/cobra"
+
+	"github.com/HalalChain/qitmeer-cli/commands"
+)
+
+func main() {
+
+	dir, _ := os.Getwd()
+
+	dir = filepath.Join(dir, "build")
+
+	docRootCmd := &cobra.Command{
+		Use: "qitmeer-cli",
+		Long: `
+The command line utility of Qitmeer and Qitmeer-wallet.
 
 Configuration file config.toml will be made automatically
 
-# download or build
+### download or build
 
 you can download the compiled binary version.
 
 [download](https://github.com/HalalChain/qitmeer-cli/releases)
 
 if you have go environment,you can also build it by yourself.
-```
+` + "```" + `
 git clone https://github.com/HalalChain/qitmeer-cli.git
 
 cd qitmeer-cli
 
 go build
  
-```
+` + "```" + `
 
-# Usage 
+### Command list
+` + "```" + `
 
-```
 Usage:
 qitmeer-cli [command]
 
@@ -73,5 +94,39 @@ Flags:
   -u, --user string        RPC username
 
 Use "qitmeer-cli [command] --help" for more information about a command.
-```
+		
+` + "```",
+	}
 
+	for group, cmds := range commands.RootSubCmdGroups {
+
+		groupCmd := &cobra.Command{
+			Use:  group,
+			Long: "See list Command Usage",
+		}
+
+		groupCmd.AddCommand(cmds...)
+
+		docRootCmd.AddCommand(groupCmd)
+	}
+
+	err := GenMarkdownTreeCustom(docRootCmd, dir, filePrepender, linkHandler)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
+
+func filePrepender(filename string) string {
+	return ""
+}
+
+func linkHandler(name string) string {
+	base := strings.TrimSuffix(name, path.Ext(name))
+
+	baseParts := strings.Split(base, "_")
+
+	netPath := filepath.Join(baseParts...)
+
+	return "/en/reference/" + strings.ToLower(netPath) + "/"
+}

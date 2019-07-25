@@ -9,17 +9,22 @@ import (
 )
 
 func init() {
-	RootCmd.AddCommand(GetMempoolCmd)
+	mempoolCmds := []*cobra.Command{
+		GetMempoolCmd,
+	}
+	RootCmd.AddCommand(mempoolCmds...)
+	RootSubCmdGroups["mempool"] = mempoolCmds
 }
 
 //GetMempoolCmd get mempool
 var GetMempoolCmd = &cobra.Command{
-	Use:   "getmempool {type string, defalut regular} {verbose bool,defalut false}",
-	Short: "get mempool",
+	Use:     "getMempool [type] [verbose]",
+	Short:   "getMempool [type] [verbose]; type: defalut regular; verbose: bool ; get mempool info",
+	Aliases: []string{"getmempool", "GetMempool"},
 	Example: `
-		getmempool
-		getmempool regular false
-		getmempool false
+getMempool
+getMempool regular false
+getMempool false
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -44,12 +49,12 @@ var GetMempoolCmd = &cobra.Command{
 		getBlockParam = append(getBlockParam, gtype)
 		getBlockParam = append(getBlockParam, verbose)
 
-		var blockInfo string
-		blockInfo, err = getResString("getMempool", getBlockParam)
+		var info string
+		info, err = getResString("getMempool", getBlockParam)
 		if err != nil {
 			log.Error(cmd.Use+" err: ", err)
 		} else {
-			fmt.Println(blockInfo)
+			output(info)
 		}
 	},
 }

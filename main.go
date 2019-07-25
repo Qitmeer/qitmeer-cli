@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -51,7 +49,7 @@ func bindFlags() {
 	preCfg = &Config{}
 	gFlags := commands.RootCmd.PersistentFlags()
 
-	gFlags.StringVarP(&preCfg.configFile, "config", "c", "cli.toml", "config file path")
+	gFlags.StringVarP(&preCfg.configFile, "config", "c", "cli.toml", "config file")
 
 	gFlags.StringVarP(&preCfg.RPCServer, "server", "s", "127.0.0.1:18131", "RPC server to connect to")
 	gFlags.StringVarP(&preCfg.RPCUser, "user", "u", "", "RPC username")
@@ -77,9 +75,22 @@ func bindFlags() {
 	// // }
 }
 
-// LoadConfig merge config file and flags
+// LoadConfig config file and flags
 func LoadConfig(cmd *cobra.Command, args []string) (err error) {
-	//cmd := commands.RootCmd
+
+	// debug
+	if cmd.Flag("debug").Changed {
+		log.SetLevel(log.TraceLevel)
+	}
+
+	//
+	if !cmd.Flag("config").Changed {
+		commands.RPCCfg = &preCfg.Config
+		commands.Format = preCfg.Format
+		return nil
+	}
+
+	// load configfile ane merge command ,but don't udpate configfile
 
 	fileCfg := &Config{}
 
@@ -88,13 +99,6 @@ func LoadConfig(cmd *cobra.Command, args []string) (err error) {
 	_, decodeErr := toml.DecodeFile(fileCfg.configFile, fileCfg)
 	if decodeErr != nil {
 		return fmt.Errorf("config file err: %s", decodeErr)
-	}
-
-	if cmd.Flag("debug").Changed {
-		fileCfg.Debug = preCfg.Debug
-	}
-	if fileCfg.Debug {
-		log.SetLevel(log.TraceLevel)
 	}
 
 	if cmd.Flag("server").Changed {
@@ -142,13 +146,15 @@ func LoadConfig(cmd *cobra.Command, args []string) (err error) {
 	commands.RPCCfg = &fileCfg.Config
 	commands.Format = fileCfg.Format
 
-	//save
-	buf := new(bytes.Buffer)
-	if err := toml.NewEncoder(buf).Encode(*fileCfg); err != nil {
-		log.Fatal(err)
-	}
+	return nil
 
-	return ioutil.WriteFile(fileCfg.configFile, buf.Bytes(), 0666)
+	//save
+	// buf := new(bytes.Buffer)
+	// if err := toml.NewEncoder(buf).Encode(*fileCfg); err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	//return ioutil.WriteFile(fileCfg.configFile, buf.Bytes(), 0666)
 }
 
 // FileExists reports whether the named file or directory exists.

@@ -2,8 +2,6 @@
 
 The command line utility of Qitmeer and Qitmeer-wallet
 
-Configuration file config.toml will be made automatically
-
 # download or build
 
 you can download the compiled binary version.

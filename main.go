@@ -68,38 +68,37 @@ func bindFlags() {
 	gFlags.BoolVar(&preCfg.Debug, "debug", false, "debug print log")
 	gFlags.BoolVar(&preCfg.Format, "format", false, "print json format")
 
-	// fmt.Println(commands.RootCmd.arg)
-	// // if !cmd.HasParent() {
-	// // 	fmt.Println(cmd.ValidArgs[0])
-	// // 	cmd.ValidArgs[0] = strings.ToLower(cmd.ValidArgs[0])
-	// // }
 }
 
 // LoadConfig config file and flags
 func LoadConfig(cmd *cobra.Command, args []string) (err error) {
 
 	// debug
-	if cmd.Flag("debug").Changed {
+	if cmd.Flag("debug").Changed && preCfg.Debug {
+
 		log.SetLevel(log.TraceLevel)
 	}
 
-	//
-	if !cmd.Flag("config").Changed {
-		commands.RPCCfg = &preCfg.Config
-		commands.Format = preCfg.Format
-		return nil
-	}
-
 	// load configfile ane merge command ,but don't udpate configfile
-
 	fileCfg := &Config{}
+	_, err = toml.DecodeFile(preCfg.configFile, fileCfg)
+	if err != nil {
+
+		//if not set config file and default cli.toml decode err, use default set only.
+		if !cmd.Flag("config").Changed {
+
+			if fExit, _ := FileExists(preCfg.configFile); fExit {
+				return fmt.Errorf("config file err: %s", err)
+			}
+
+			commands.RPCCfg = &preCfg.Config
+			commands.Format = preCfg.Format
+			return nil
+		}
+		return fmt.Errorf("config file err: %s", err)
+	}
 
 	fileCfg.configFile = preCfg.configFile
-
-	_, decodeErr := toml.DecodeFile(fileCfg.configFile, fileCfg)
-	if decodeErr != nil {
-		return fmt.Errorf("config file err: %s", decodeErr)
-	}
 
 	if cmd.Flag("server").Changed {
 		fileCfg.RPCServer = preCfg.RPCServer

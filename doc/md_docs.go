@@ -76,7 +76,14 @@ func GenMarkdownCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string)
 
 	buf.WriteString("### Usage\n\n")
 	if cmd.Runnable() {
-		buf.WriteString(fmt.Sprintf("```\n%s\n```\n\n", cmd.UseLine()))
+		//buf.WriteString(fmt.Sprintf("```\n%s\n```\n\n", cmd.UseLine()))
+
+		useLine := "qitmeer-cli " + cmd.Name()
+
+		if cmd.HasAvailableFlags() && !strings.Contains(useLine, "[flags]") {
+			useLine += " [flags]"
+		}
+		buf.WriteString(fmt.Sprintf("```\n%s\n```\n\n", useLine))
 	}
 	buf.WriteString(long + "\n\n")
 

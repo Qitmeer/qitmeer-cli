@@ -6,11 +6,11 @@ The command line utility of Qitmeer and Qitmeer-wallet
 
 you can download the compiled binary version.
 
-[download](https://github.com/qitmeer/qitmeer-cli/releases)
+[download](https://github.com/Qitmeer/qitmeer-cli/releases)
 
 if you have go environment,you can also build it by yourself.
 ```
-git clone https://github.com/qitmeer/qitmeer-cli.git
+git clone https://github.com/Qitmeer/qitmeer-cli.git
 
 cd qitmeer-cli
 

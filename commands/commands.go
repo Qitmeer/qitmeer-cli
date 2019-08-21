@@ -13,7 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/HalalChain/qitmeer-cli/rpc/client"
+	"github.com/qitmeer/qitmeer-cli/rpc/client"
 )
 
 const (

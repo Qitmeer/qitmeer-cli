@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/HalalChain/qitmeer-cli/commands"
+	"github.com/qitmeer/qitmeer-cli/commands"
 )
 
 func main() {
@@ -29,11 +29,11 @@ Configuration file config.toml will be made automatically
 
 you can download the compiled binary version.
 
-[download](https://github.com/HalalChain/qitmeer-cli/releases)
+[download](https://github.com/qitmeer/qitmeer-cli/releases)
 
 if you have go environment,you can also build it by yourself.
 ` + "```" + `
-git clone https://github.com/HalalChain/qitmeer-cli.git
+git clone https://github.com/qitmeer/qitmeer-cli.git
 
 cd qitmeer-cli
 

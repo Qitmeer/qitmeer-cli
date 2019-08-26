@@ -60,11 +60,24 @@ var GetBlockTemplateCmd = &cobra.Command{
 	Long:    "get best block template to mine work",
 	Aliases: []string{"getblocktemplate", "GetBlockTemplate"},
 	Example: `
-getBlockTemplate 
+getBlockTemplate  
+getBlockTemplate coinbasetxn
 	`,
-	Args: cobra.NoArgs,
+
 	Run: func(cmd *cobra.Command, args []string) {
+		// type TemplateRequest struct {
+		// 	Capabilities []string `json:"capabilities,omitempty"`
+		// }
+		// paramT := new(TemplateRequest)
+		// paramT.Capabilities = []string{"conibasetxn"}
+
 		params := []interface{}{}
+
+		// for _, arg := range args {
+		// }
+
+		params = append(params, args)
+
 		rs, err := getResString("getBlockTemplate", params)
 		if err != nil {
 			log.Error(cmd.Use+" err: ", err)

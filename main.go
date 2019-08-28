@@ -66,8 +66,7 @@ func bindFlags() {
 	gFlags.StringVar(&preCfg.Timeout, "timeout", "30s", "rpc timeout,s:second h:hour m:minute")
 
 	gFlags.BoolVar(&preCfg.Debug, "debug", false, "debug print log")
-	gFlags.BoolVar(&preCfg.Format, "format", false, "print json format")
-
+	gFlags.BoolVar(&preCfg.Format, "jq", false, "print json format")
 }
 
 // LoadConfig config file and flags
@@ -136,7 +135,7 @@ func LoadConfig(cmd *cobra.Command, args []string) (err error) {
 	if cmd.Flag("debug").Changed {
 		fileCfg.Debug = preCfg.Debug
 	}
-	if cmd.Flag("format").Changed {
+	if cmd.Flag("jq").Changed {
 		fileCfg.Format = preCfg.Format
 	}
 

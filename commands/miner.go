@@ -55,8 +55,8 @@ generate 1
 
 //GetBlockTemplateCmd get block template to mine
 var GetBlockTemplateCmd = &cobra.Command{
-	Use:     "getBlockTemplate",
-	Short:   "getBlockTemplate; get new block work to mine",
+	Use:     "getBlockTemplate {coinbasetxn|coinbasevalue}",
+	Short:   "getBlockTemplate {coinbasetxn|coinbasevalue}",
 	Long:    "get best block template to mine work",
 	Aliases: []string{"getblocktemplate", "GetBlockTemplate"},
 	Example: `
@@ -70,6 +70,10 @@ getBlockTemplate coinbasetxn
 		// }
 		// paramT := new(TemplateRequest)
 		// paramT.Capabilities = []string{"conibasetxn"}
+
+		if len(args) == 0 {
+			args = append(args, "coinbasevalue")
+		}
 
 		params := []interface{}{}
 

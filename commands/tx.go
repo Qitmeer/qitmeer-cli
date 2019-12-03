@@ -10,30 +10,29 @@ import (
 )
 
 func init() {
-	blockChainCmds := []*cobra.Command{
+	txCmds := []*cobra.Command{
 		CreateRawTransactionCmd,
-		GetRawTransactionCmd,
+		GetRawTransactionCmd,       // by txid
+		GetRawTransactionByHashCmd, // by txhash
+		GetRawTransactionsCmd,
 		DecodeRawTransactionCmd,
 		SendRawTransactionCmd,
 		TxSignCmd,
 		GetUtxoCmd,
-		GetNodeInfoCmd,
-		GetPeerInfoCmd,
 	}
-	RootCmd.AddCommand(blockChainCmds...)
-	RootSubCmdGroups["blockChain"] = blockChainCmds
-
+	RootCmd.AddCommand(txCmds...)
+	RootSubCmdGroups["tx"] = txCmds
 }
 
 //GetRawTransactionCmd getrawtransaction
 var GetRawTransactionCmd = &cobra.Command{
-	Use:     "getRawTransaction {tx_hash} [verbose]",
+	Use:     "getRawTransaction {txid} [verbose]",
 	Aliases: []string{"getrawtransaction", "GetRawTransaction", "getRawTx", "getrawtx", "GetRawTx"},
-	Short:   "getRawTransaction {tx_hash} [verbose]; verbose: bool,show detail,defalut true",
+	Short:   "getRawTransaction {txid} [verbose]; verbose: bool,show detail,defalut true",
 	Example: `
-getRawTransaction 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca
+	getRawTransaction 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca
 
-getRawTransaction 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca true
+	getRawTransaction 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca true
 	`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -63,11 +62,124 @@ getRawTransaction 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313e
 	},
 }
 
+//GetRawTransactionByHashCmd getrawtransaction by txhash
+var GetRawTransactionByHashCmd = &cobra.Command{
+	Use:     "getRawTransactionByHash {txhash} [verbose]",
+	Aliases: []string{"getrawtransactionbyhash", "GetRawTransactionByHash", "getRawTxByHash", "getrawtxbyhash", "GetRawTxByHash"},
+	Short:   "getRawTransactionByHash {txhash} [verbose]; verbose: bool,show detail,defalut true",
+	Example: `
+	getRawTransactionByHash 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca
+
+	getRawTransactionByHash 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca true
+	`,
+	Args: cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+
+		var err error
+
+		var txHash string
+		var verbose bool = true
+
+		txHash = args[0]
+
+		if len(args) > 1 {
+			verbose, err = strconv.ParseBool(args[1])
+			if err != nil {
+				log.Error("verbose bool true or false", err)
+				return
+			}
+		}
+
+		var txInfo string
+		txInfo, err = getResString("getRawTransactionByHash", []interface{}{txHash, verbose})
+		if err != nil {
+			log.Error(cmd.Use+" err: ", err)
+		} else {
+			output(txInfo)
+		}
+	},
+}
+
+//GetRawTransactionsCmd handleSearchRawTransactions implements the searchrawtransactions command.
+var GetRawTransactionsCmd = &cobra.Command{
+	Use:     "getRawTransactions {addre} [vinext bool] [count] [skip] [revers] [verbose] [filterAddrs ... ]",
+	Aliases: []string{"getrawtransactions", "GetRawTransactions", "getRawTxs", "getrawtxs", "GetRawTxs"},
+	Short:   "getRawTransactions {addre} [vinext,defalut false] [count,defalut 100] [skip] [revers] [verbose] [filterAddrs ...]",
+	Example: `
+getRawTransaction TmZu8zU1i6xbZMpLQZLMAJsyWHanZXUZtiV
+
+getRawTransaction TmZu8zU1i6xbZMpLQZLMAJsyWHanZXUZtiV true
+	`,
+	Args: cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+
+		var err error
+
+		addre := args[0]
+
+		vinext := false
+		if len(args) > 1 {
+			vinext, err = strconv.ParseBool(args[1])
+			if err != nil {
+				log.Error("vinext bool true or false", err)
+				return
+			}
+		}
+		var count int64 = 100
+		if len(args) > 2 {
+			count, err = strconv.ParseInt(args[2], 10, 64)
+			if err != nil {
+				log.Error("count int", err)
+				return
+			}
+		}
+
+		var numToSkip uint64 = 0
+		if len(args) > 3 {
+			numToSkip, err = strconv.ParseUint(args[3], 10, 64)
+			if err != nil {
+				log.Error("Skip int", err)
+				return
+			}
+		}
+
+		revers := false
+		if len(args) > 4 {
+			revers, err = strconv.ParseBool(args[4])
+			if err != nil {
+				log.Error("revers bool true or false", err)
+				return
+			}
+		}
+		verbose := false
+		if len(args) > 5 {
+			verbose, err = strconv.ParseBool(args[5])
+			if err != nil {
+				log.Error("verbose bool true or false", err)
+				return
+			}
+		}
+
+		filterAddrs := []string{}
+		if len(args) > 6 {
+			filterAddrs = append(filterAddrs, args[6:]...)
+		}
+
+		var txInfo string
+		txInfo, err = getResString("getRawTransactions", []interface{}{addre, vinext, count, numToSkip, revers, verbose, filterAddrs})
+		if err != nil {
+			log.Error(cmd.Use+" err: ", err)
+		} else {
+			output(txInfo)
+		}
+	},
+}
+
 //CreateRawTransactionCmd CreateRawTransactionCmd
 var CreateRawTransactionCmd = &cobra.Command{
 	Use:     "createRawTransaction {inTxid:vout}... {toAddr:amount}... {lockTime}",
 	Aliases: []string{"createrawtransaction", "CreateRawTransaction", "createRawTx", "createrawtx", "CreateRawTx"},
-	Short:   "createRawTx {inTxid:vout}... {toAddr:amount}... {lockTime},crate raw transaction",
+	Short:   "createRawTx {inTxid:vout}... {toAddr:amount}... {lockTime},make rawTransaction",
 	Example: `
 createRawTransaction b203ff6ba4f39ecf846a103c17f15e35afcbd229f72ad1a9f0a90f07a7535dff:2 RmFFQV5FsuKFU5b4sBjGvpDd6P183iMZRcT:20.3
 	`,
@@ -256,48 +368,6 @@ getutxo a97cf4d67bbe5ce57d1d2f4fc18ae2ee19e1048cbb1a14d8d94273bfef83f371 0 true
 			log.Error(cmd.Use+" err: ", err)
 		} else {
 			output(tx)
-		}
-	},
-}
-
-//GetNodeInfoCmd GetNodeInfo
-var GetNodeInfoCmd = &cobra.Command{
-	Use:     "getNodeInfo",
-	Short:   "getNodeInfo",
-	Aliases: []string{"getnodeinfo"},
-	Example: `
-getNodeInfo
-	`,
-	Run: func(cmd *cobra.Command, args []string) {
-		var err error
-		var info string
-
-		info, err = getResString("getNodeInfo", nil)
-		if err != nil {
-			log.Error(cmd.Use+" err: ", err)
-		} else {
-			output(info)
-		}
-	},
-}
-
-//GetPeerInfoCmd GetPeerInfo
-var GetPeerInfoCmd = &cobra.Command{
-	Use:     "getPeerInfo",
-	Short:   "getPeerInfo",
-	Aliases: []string{"getpeerinfo"},
-	Example: `
-getPeerInfo
-	`,
-	Run: func(cmd *cobra.Command, args []string) {
-		var err error
-		var info string
-
-		info, err = getResString("getPeerInfo", nil)
-		if err != nil {
-			log.Error(cmd.Use+" err: ", err)
-		} else {
-			output(info)
 		}
 	},
 }

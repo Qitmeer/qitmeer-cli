@@ -13,33 +13,77 @@ func init() {
 
 	blockCmds := []*cobra.Command{
 		GetBlockCountCmd,
+		GetBlockTotalCmd,
+		GetOrphansTotalCmd,
 		GetBlockHashCmd,
 		GetBlockCmd,
 		GetBlockhashByRangeCmd,
 		GetBlockByOrderCmd,
+		GetBlockByIDCmd,
 		GetBestBlockHashCmd,
 		GetBlockHeaderCmd,
 		IsOnMainChainCmd,
 		GetMainChainHeightCmd,
 		GetBlockWeightCmd,
+		IsBlueCmd,
 	}
 
 	RootCmd.AddCommand(blockCmds...)
 	RootSubCmdGroups["block"] = blockCmds
 }
 
+//GetBlockTotalCmd The total number blocks that this dag currently owned
+var GetBlockTotalCmd = &cobra.Command{
+	Use:     "getBlockTotal",
+	Short:   "getBlockTotal; The total number blocks that this dag currently owned",
+	Aliases: []string{"GetBlockTotal", "getblocktotal"},
+	Example: `
+	getBlockTotal 
+	`,
+	Args: cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		params := []interface{}{}
+		blockCount, err := getResString("getBlockTotal", params)
+		if err != nil {
+			log.Error(cmd.Use+" err: ", err)
+		} else {
+			output(blockCount)
+		}
+	},
+}
+
 //GetBlockCountCmd get block count
 var GetBlockCountCmd = &cobra.Command{
 	Use:     "getBlockCount",
-	Short:   "getBlockCount; count all synchronous blocks",
+	Short:   "getBlockCount; The order of main chain tip",
 	Aliases: []string{"getblockcount", "GetBlockCount"},
 	Example: `
-getBlockCount 
+	getBlockCount 
 	`,
 	Args: cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		params := []interface{}{}
 		blockCount, err := getResString("getBlockCount", params)
+		if err != nil {
+			log.Error(cmd.Use+" err: ", err)
+		} else {
+			output(blockCount)
+		}
+	},
+}
+
+//GetOrphansTotalCmd Get the total of all orphans
+var GetOrphansTotalCmd = &cobra.Command{
+	Use:     "getOrphansTotal",
+	Short:   "getOrphansTotal; Get the total of all orphans",
+	Aliases: []string{"GetOrphansTotal", "getorphanstotal", "getorphansblockcount"},
+	Example: `
+	getOrphansTotal 
+	`,
+	Args: cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		params := []interface{}{}
+		blockCount, err := getResString("getOrphansTotal", params)
 		if err != nil {
 			log.Error(cmd.Use+" err: ", err)
 		} else {
@@ -54,7 +98,7 @@ var GetBlockHashCmd = &cobra.Command{
 	Short:   "getBlockHash {number}; get block hash by number",
 	Aliases: []string{"getblockhash", "GetBlockHash", "getBlockhash"},
 	Example: `
-getBlockHash 100 
+	getBlockHash 100 
 	`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -80,9 +124,9 @@ getBlockHash 100
 
 //GetBlockCmd get block by number or hash
 var GetBlockCmd = &cobra.Command{
-	Use:     "getBlock {number|hash} [verbose]",
+	Use:     "getBlock {number|hash} [verbose] [inclTx], [fullTx]",
 	Aliases: []string{"getblock", "GetBlock"},
-	Short:   "getBlock {number|hash} [verbose]; verbose: defalut true,show block detail,get block by number or hash",
+	Short:   "getBlock {number|hash} [verbose]; verbose: defalut false,show block detail,get block by number or hash",
 	Example: `
 getBlock 100 false
 
@@ -118,18 +162,34 @@ getBlock 000000e4c6b7f5b89827711d412957bfff5c51730df05c2eedd1352468313eca true
 			blockHash = args[0]
 		}
 
-		var isDetail bool = true
+		verbose := false
 		if len(args) > 1 {
-			isDetail, err = strconv.ParseBool(args[1])
+			verbose, err = strconv.ParseBool(args[1])
 			if err != nil {
-				fmt.Println("isDetail bool true or false", err)
+				fmt.Println("verbose bool true or false", err)
 				return
 			}
 		}
 
-		getBlockParam := []interface{}{}
-		getBlockParam = append(getBlockParam, blockHash)
-		getBlockParam = append(getBlockParam, isDetail)
+		inclTx := true
+		if len(args) > 2 {
+			inclTx, err = strconv.ParseBool(args[2])
+			if err != nil {
+				fmt.Println("inclTx bool true or false", err)
+				return
+			}
+		}
+
+		fullTx := true
+		if len(args) > 3 {
+			fullTx, err = strconv.ParseBool(args[3])
+			if err != nil {
+				fmt.Println("fullTx bool true or false", err)
+				return
+			}
+		}
+
+		getBlockParam := []interface{}{blockHash, verbose, inclTx, fullTx}
 
 		var blockInfo string
 		blockInfo, err = getResString("getBlock", getBlockParam)
@@ -151,7 +211,7 @@ var GetBlockhashByRangeCmd = &cobra.Command{
 	if 'end' is equal to zero, 'start' is the number that from the last block to the Gen
 	if 'start' is greater than or equal to 'end', it will just return the hash of 'start'`,
 	Example: `
-getBlockHashByRange 5 22
+	getBlockHashByRange 5 22
 	`,
 	Args: cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -183,30 +243,105 @@ getBlockHashByRange 5 22
 
 //GetBlockByOrderCmd get block hash by number
 var GetBlockByOrderCmd = &cobra.Command{
-	Use:     "getBlockByOrder {order} {fullTx}",
+	Use:     "getBlockByOrder {order} {verbose} {inclTx} {fullTx}",
 	Aliases: []string{"getblockbyorder", "GetBlockByOrder"},
-	Short:   "getBlockByOrder {order} {fullTx}",
+	Short:   "getBlockByOrder {order} {verbose,default false} {inclTx,default true} {fullTx,default true}",
 	Example: `
-getBlockByOrder 10 true
+	getBlockByOrder 10 true
 	`,
-	Args: cobra.MinimumNArgs(2),
+	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		order, err := strconv.ParseInt(args[0], 10, 64)
 		if err != nil {
-			log.Error(cmd.Use + " err: block number is not int")
+			log.Error(cmd.Use + " err: block order is not int")
 			return
 		}
 
-		fullTx, err := strconv.ParseBool(args[1])
-		if err != nil {
-			log.Error(cmd.Use + " err: fullTx bool")
-			return
+		verbose := false
+		if len(args) > 1 {
+			verbose, err = strconv.ParseBool(args[1])
+			if err != nil {
+				log.Error(cmd.Use + " err: verbose bool")
+				return
+			}
 		}
 
-		params := []interface{}{order, fullTx}
+		inclTx := true
+		if len(args) > 2 {
+			inclTx, err = strconv.ParseBool(args[2])
+			if err != nil {
+				log.Error(cmd.Use + " err: inclTx bool")
+				return
+			}
+		}
+
+		fullTx := true
+		if len(args) > 3 {
+			fullTx, err = strconv.ParseBool(args[3])
+			if err != nil {
+				log.Error(cmd.Use + " err: fullTx bool")
+				return
+			}
+		}
+
+		params := []interface{}{order, verbose, inclTx, fullTx}
 
 		blockInfo, err := getResString("getBlockByOrder", params)
+		if err != nil {
+			log.Error(cmd.Use+" err: ", err)
+		} else {
+			output(blockInfo)
+		}
+	},
+}
+
+//GetBlockByIDCmd get block hash by number
+var GetBlockByIDCmd = &cobra.Command{
+	Use:     "getBlockByID {id} {verbose} {inclTx} {fullTx}",
+	Aliases: []string{"GetBlockByID", "getblockbyid"},
+	Short:   "getBlockByID {id} {verbose,default false} {inclTx,default true} {fullTx,default true}",
+	Example: `
+	getBlockByID 10
+	`,
+	Args: cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		ID, err := strconv.ParseInt(args[0], 10, 64)
+		if err != nil {
+			log.Error(cmd.Use + " err: block ID is not int")
+			return
+		}
+
+		verbose := false
+		if len(args) > 1 {
+			verbose, err = strconv.ParseBool(args[1])
+			if err != nil {
+				log.Error(cmd.Use + " err: verbose bool")
+				return
+			}
+		}
+
+		inclTx := true
+		if len(args) > 2 {
+			inclTx, err = strconv.ParseBool(args[2])
+			if err != nil {
+				log.Error(cmd.Use + " err: inclTx bool")
+				return
+			}
+		}
+
+		fullTx := true
+		if len(args) > 3 {
+			fullTx, err = strconv.ParseBool(args[3])
+			if err != nil {
+				log.Error(cmd.Use + " err: fullTx bool")
+				return
+			}
+		}
+
+		params := []interface{}{ID, verbose, inclTx, fullTx}
+
+		blockInfo, err := getResString("getBlockByID", params)
 		if err != nil {
 			log.Error(cmd.Use+" err: ", err)
 		} else {
@@ -321,7 +456,7 @@ isOnMainChain 0000006c77a308846e0e0759bef5ebe0dbf4d49f345b08bdda24642efcc0cb91
 //GetMainChainHeightCmd .
 var GetMainChainHeightCmd = &cobra.Command{
 	Use:     "getMainChainHeight",
-	Short:   "getMainChainHeight",
+	Short:   "getMainChainHeight: Return the current height of DAG main chain",
 	Aliases: []string{"getMainChainHeight", "getmainchainheight"},
 	Example: `
 GetMainChainHeight
@@ -340,16 +475,37 @@ GetMainChainHeight
 //GetBlockWeightCmd .
 var GetBlockWeightCmd = &cobra.Command{
 	Use:     "getBlockWeight {hash}",
-	Short:   "getBlockWeight",
+	Short:   "getBlockWeight: the weight of block",
 	Aliases: []string{"getBlockWeight", "getblockweight"},
 	Example: `
-getBlockWeight 0000006c77a308846e0e0759bef5ebe0dbf4d49f345b08bdda24642efcc0cb91
+	getBlockWeight 0000006c77a308846e0e0759bef5ebe0dbf4d49f345b08bdda24642efcc0cb91
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		params := []interface{}{args[0]}
 
 		isOn, err := getResString("getBlockWeight", params)
+		if err != nil {
+			log.Error(cmd.Use+" err: ", err)
+		} else {
+			fmt.Println(strings.Trim(isOn, "\""))
+		}
+	},
+}
+
+//IsBlueCmd 0:not blue;  1：blue  2：Cannot confirm
+var IsBlueCmd = &cobra.Command{
+	Use:     "isBlue {hash}",
+	Short:   "isBlue {hash},0:not blue;  1：blue  2：Cannot confirm",
+	Aliases: []string{"isBlue", "isblue", "IsBlue"},
+	Example: `
+	isBlue 0000006c77a308846e0e0759bef5ebe0dbf4d49f345b08bdda24642efcc0cb91
+	`,
+	Run: func(cmd *cobra.Command, args []string) {
+
+		params := []interface{}{args[0]}
+
+		isOn, err := getResString("isBlue", params)
 		if err != nil {
 			log.Error(cmd.Use+" err: ", err)
 		} else {

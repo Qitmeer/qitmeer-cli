@@ -19,14 +19,16 @@ func init() {
 
 //GenerateCmd cpu mine block
 var GenerateCmd = &cobra.Command{
-	Use:     "generate {number | default latest}",
-	Short:   "generate {number}, cpu mine {number} blocks",
-	Long:    "cpu mine block",
+	Use:     "generate {number | default latest} {powType | default 0}",
+	Short:   "generate {number}, cpu mine {number} blocks,powType: BLAKE2BD=0,CUCKAROO=1,CUCKATOO=2",
+	Long:    "cpu mine block,powType: BLAKE2BD=0,CUCKAROO=1,CUCKATOO=2",
 	Aliases: []string{"Generate"},
 	Example: `
 generate // generate latest 
 
 generate 1
+
+generate 1 2// cpu cuckaroo
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -42,6 +44,16 @@ generate 1
 			}
 			params = append(params, number)
 		}
+
+		var powType int64 = 0
+		if len(args) > 1 {
+			powType, err = strconv.ParseInt(args[1], 10, 64)
+			if err != nil {
+				log.Error(cmd.Use+"powType number err: ", err)
+				return
+			}
+		}
+		params = append(params, powType)
 
 		var rs string
 		rs, err = getResString("miner_generate", params)

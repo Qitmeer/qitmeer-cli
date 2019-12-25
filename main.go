@@ -16,8 +16,8 @@ import (
 type Config struct {
 	configFile string
 
-	Debug  bool //print log
-	Format bool //output by json format
+	Debug bool //print log
+	Jq    bool //output by json format
 
 	client.Config
 }
@@ -51,13 +51,13 @@ func bindFlags() {
 
 	gFlags.StringVarP(&preCfg.configFile, "config", "c", "cli.toml", "config file")
 
-	gFlags.StringVarP(&preCfg.RPCServer, "server", "s", "127.0.0.1:18131", "RPC server to connect to")
-	gFlags.StringVarP(&preCfg.RPCUser, "user", "u", "", "RPC username")
-	gFlags.StringVarP(&preCfg.RPCPassword, "password", "P", "", "RPC password")
-	gFlags.StringVar(&preCfg.RPCCert, "cert", "", "RPC server certificate file path")
+	gFlags.StringVarP(&preCfg.RPCServer, "rpcserver", "s", "127.0.0.1:18131", "RPC server to connect to")
+	gFlags.StringVarP(&preCfg.RPCUser, "rpcuser", "u", "", "RPC username")
+	gFlags.StringVarP(&preCfg.RPCPassword, "rpcpassword", "P", "", "RPC password")
+	gFlags.StringVar(&preCfg.RPCCert, "rpccert", "", "RPC server certificate file path")
 
 	gFlags.BoolVar(&preCfg.NoTLS, "notls", true, "Do not verify tls certificates (not recommended!)")
-	gFlags.BoolVar(&preCfg.TLSSkipVerify, "skipverify", true, "Do not verify tls certificates (not recommended!)")
+	gFlags.BoolVar(&preCfg.TLSSkipVerify, "tlsskipverify", true, "Do not verify tls certificates (not recommended!)")
 
 	gFlags.StringVar(&preCfg.Proxy, "proxy", "", "Connect via SOCKS5 proxy (eg. 127.0.0.1:9050)")
 	gFlags.StringVar(&preCfg.ProxyUser, "proxyuser", "", "Username for proxy server")
@@ -66,7 +66,7 @@ func bindFlags() {
 	gFlags.StringVar(&preCfg.Timeout, "timeout", "30s", "rpc timeout,s:second h:hour m:minute")
 
 	gFlags.BoolVar(&preCfg.Debug, "debug", false, "debug print log")
-	gFlags.BoolVar(&preCfg.Format, "jq", false, "print json format")
+	gFlags.BoolVar(&preCfg.Jq, "jq", false, "print json format")
 }
 
 // LoadConfig config file and flags
@@ -91,7 +91,7 @@ func LoadConfig(cmd *cobra.Command, args []string) (err error) {
 			}
 
 			commands.RPCCfg = &preCfg.Config
-			commands.Format = preCfg.Format
+			commands.Jq = preCfg.Jq
 			return nil
 		}
 		return fmt.Errorf("config file err: %s", err)
@@ -99,22 +99,22 @@ func LoadConfig(cmd *cobra.Command, args []string) (err error) {
 
 	fileCfg.configFile = preCfg.configFile
 
-	if cmd.Flag("server").Changed {
+	if cmd.Flag("rpcserver").Changed {
 		fileCfg.RPCServer = preCfg.RPCServer
 	}
-	if cmd.Flag("user").Changed {
+	if cmd.Flag("rpcuser").Changed {
 		fileCfg.RPCUser = preCfg.RPCUser
 	}
-	if cmd.Flag("password").Changed {
+	if cmd.Flag("rpcpassword").Changed {
 		fileCfg.RPCPassword = preCfg.RPCPassword
 	}
-	if cmd.Flag("cert").Changed {
+	if cmd.Flag("rpccert").Changed {
 		fileCfg.RPCCert = preCfg.RPCCert
 	}
 	if cmd.Flag("notls").Changed {
 		fileCfg.NoTLS = preCfg.NoTLS
 	}
-	if cmd.Flag("skipverify").Changed {
+	if cmd.Flag("tlsskipverify").Changed {
 		fileCfg.TLSSkipVerify = preCfg.TLSSkipVerify
 	}
 
@@ -136,13 +136,13 @@ func LoadConfig(cmd *cobra.Command, args []string) (err error) {
 		fileCfg.Debug = preCfg.Debug
 	}
 	if cmd.Flag("jq").Changed {
-		fileCfg.Format = preCfg.Format
+		fileCfg.Jq = preCfg.Jq
 	}
 
 	log.Debug("fileCfg: ", *fileCfg)
 
 	commands.RPCCfg = &fileCfg.Config
-	commands.Format = fileCfg.Format
+	commands.Jq = fileCfg.Jq
 
 	return nil
 

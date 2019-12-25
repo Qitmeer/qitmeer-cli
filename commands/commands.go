@@ -33,7 +33,7 @@ var RootCmd = &cobra.Command{
 
 var RPCCfg = &client.Config{}
 var RPCVersion = "1.0"
-var Format = false
+var Jq = false
 
 var RootSubCmdGroups = make(map[string][]*cobra.Command)
 
@@ -62,7 +62,7 @@ func getResString(method string, args []interface{}) (rs string, err error) {
 
 //
 func output(dataStr string) {
-	if Format {
+	if Jq {
 		var str bytes.Buffer
 		_ = json.Indent(&str, []byte(dataStr), "", "    ")
 		fmt.Println(str.String())

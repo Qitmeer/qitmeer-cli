@@ -1,12 +1,13 @@
-Debug = false
-Format = true
-RPCServer = "47.93.20.102:1236"
-RPCUser = "admin"
-RPCPassword = "123"
-RPCCert = ""
-NoTLS = true
-TLSSkipVerify = true
-Proxy = ""
-ProxyUser = ""
-ProxyPass = ""
-Timeout = "30s"
+rpcserver = "47.93.20.102:1236"
+rpcuser = "admin"
+rpcpassword = "123"
+rpccert = ""
+notls = true
+tlsskipverify = true
+proxy = ""
+proxyuser = ""
+proxypass = ""
+timeout = "30s"
+
+debug = false
+jq = true
